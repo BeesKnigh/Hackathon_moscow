@@ -51,35 +51,37 @@ async def upload_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="CSV файл пустой или неправильно отформатирован.")
 
     try:
-        encoding_data = ['ua_client_type', 'ua_device_type']
-        encoding_ohe = OneHotEncoder(handle_unknown='ignore')
-        ohe_data = encoding_ohe.fit_transform(all_train_data[encoding_data])
-        ohe_df = pd.DataFrame(ohe_data.toarray(), columns=encoding_ohe.get_feature_names_out(encoding_data))
+        # all_train_data = df
+        # encoding_data = ['ua_client_type', 'ua_device_type']
+        # encoding_ohe = OneHotEncoder(handle_unknown='ignore')
+        # ohe_data = encoding_ohe.fit_transform(all_train_data[encoding_data])
+        # ohe_df = pd.DataFrame(ohe_data.toarray(), columns=encoding_ohe.get_feature_names_out(encoding_data))
+        # merged_data_ohe = pd.concat([all_train_data.reset_index(drop=True), ohe_df.reset_index(drop=True)], axis=1)
+        #
+        # merged_data_ohe.drop(columns=encoding_data, inplace=True)
+        # encoding_data = ['event_timestamp', 'region', 'ua_os', 'ua_client_name', 'rutube_video_id']
+        #
+        # le = LabelEncoder()
+        # encoded_data = {}
+        #
+        # for col in encoding_data:
+        #     encoded_data[col] = le.fit_transform(all_train_data[col])
+        #
+        # encoded_df = pd.DataFrame(encoded_data)
+        #
+        # encoded_df.columns = [f"{col}_encoded" for col in encoded_df.columns]
+        #
+        # merged_data = pd.concat([encoded_df.reset_index(drop=True), merged_data_ohe.reset_index(drop=True)], axis=1)
+        # merged_data.to_csv("catboost_model_age_new.csv", index=False)
+        # merged_data.drop(columns=[col for col in encoding_data if col in merged_data.columns], inplace=True)
 
-        encoding_data = ['event_timestamp', 'region', 'ua_os', 'ua_client_name', 'rutube_video_id']
+        age_prediction = model_age.predict(df)
 
-        le = LabelEncoder()
-        encoded_data = {}
-
-        for col in encoding_data:
-            encoded_data[col] = le.fit_transform(all_train_data[col])
-
-        encoded_df = pd.DataFrame(encoded_data)
-
-        encoded_df.columns = [f"{col}_encoded" for col in encoded_df.columns]
-
-        merged_data = pd.concat([encoded_df.reset_index(drop=True), merged_data_ohe.reset_index(drop=True)], axis=1)
-
-        merged_data.drop(columns=[col for col in encoding_data if col in merged_data.columns], inplace=True)
-
-        features = df.values
-        age_prediction = model_age.predict(features)
-
-        predictions = model.predict(features)
+        predictions = model.predict(df)
         # Добавление предсказаний в DataFrame
         aboba = pd.DataFrame({
             'viewer_uid': df['viewer_uid'].astype(int),
-            'age': age_prediction.astype(int).apply(assign_random_age),
+            # 'age': age_prediction.astype(int).apply(assign_random_age),
             'sex': predictions.astype(int),
             'age_class': age_prediction.astype(int),
         })
