@@ -57,7 +57,7 @@ async def upload_csv(file: UploadFile = File(...)):
         # Добавление предсказаний в DataFrame
         aboba = pd.DataFrame({
             'viewer_uid': df['viewer_uid'].astype(int).ravel(),
-            'age': age_prediction.astype(int).ravel().apply(lambda x: assign_random_age(x)).ravel(),
+            'age': age_prediction.astype(int).ravel(),
             'sex': predictions.astype(int).ravel(),
             'age_class': age_prediction.astype(int).ravel(),
         })
